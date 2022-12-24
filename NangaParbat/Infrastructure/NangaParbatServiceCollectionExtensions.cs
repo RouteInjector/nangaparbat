@@ -1,11 +1,11 @@
 using System;
-using System.Threading.Tasks;
+using System.IO;
+using System.Reflection;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using MongoDB.Driver;
-using MongoDB.Entities;
 using NangaParbat.Controllers;
 using NangaParbat.Models;
 using NangaParbat.Services;
@@ -17,26 +17,22 @@ namespace NangaParbat.Infrastructure
     {
         public static IServiceCollection AddNangaParbat(this IServiceCollection services, IConfiguration config)
         {
-            ConfigureDatabase(config);
-            
             services.AddControllers();
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen(ConfigureSwagger());
-            services.AddSingleton(typeof(Storage<>));
+            services.AddSingleton(MongoDatabase(config));
+            services.AddSingleton(typeof(IDocumentStore<>), typeof(DocumentCollection<>));
             services.AddMvc(o => o.Conventions.Add(new GenericControllerRouteConvention()))
                 .ConfigureApplicationPartManager(m =>
                     m.FeatureProviders.Add(new GenericTypeControllerFeatureProvider()));
 
             return services;
         }
-        
-        private static void ConfigureDatabase(IConfiguration config)
+
+        private static IMongoDatabase MongoDatabase(IConfiguration config)
         {
             var settings = config.GetSection("DatabaseSettings").Get<DatabaseSettings>()!;
-            Task.Run(async () => await DB.InitAsync(settings.DatabaseName,
-                    MongoClientSettings.FromConnectionString(settings.ConnectionString)))
-                .GetAwaiter()
-                .GetResult();
+            return new MongoClient(settings.ConnectionString).GetDatabase(settings.DatabaseName);
         }
 
         private static Action<SwaggerGenOptions> ConfigureSwagger()
@@ -55,6 +51,10 @@ namespace NangaParbat.Infrastructure
                     throw new InvalidOperationException("Unable to determine tag for endpoint.");
                 });
                 c.DocInclusionPredicate((name, api) => true);
+                
+                // using System.Reflection;
+                var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
             };
         }
     }

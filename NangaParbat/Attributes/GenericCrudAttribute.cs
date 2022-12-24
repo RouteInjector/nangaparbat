@@ -1,8 +1,8 @@
 using System;
 
-namespace NangaParbat.Controllers
+namespace NangaParbat.Attributes
 {
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Class)]
     public class GenericCrudAttribute : Attribute
     {
         public GenericCrudAttribute(string route, string group)
@@ -11,7 +11,7 @@ namespace NangaParbat.Controllers
             Group = group;
         }
 
-        public string Route { get; set; }
-        public string Group { get; set; }
+        public string Route { get; }
+        public string Group { get; }
     }
 }
