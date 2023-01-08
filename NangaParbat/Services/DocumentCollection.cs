@@ -10,13 +10,19 @@ namespace NangaParbat.Services
     public class DocumentCollection<T> : IDocumentStore<T> where T : Document
     {
         private readonly IMongoCollection<T> _collection;
-
+        
         public DocumentCollection(IMongoDatabase database)
         {
+            /*
             var attribute =
                 (CollectionAttribute) Attribute.GetCustomAttribute(typeof(T), typeof (CollectionAttribute))!;
             _collection = database.GetCollection<T>(attribute.Collection);
+            */
+
+            String collection = typeof(T).Name;
+            _collection = database.GetCollection<T>(collection);
         }
+        
 
         public async Task<IEnumerable<T>> Get()
         {

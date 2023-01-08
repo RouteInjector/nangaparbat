@@ -3,7 +3,7 @@ using NangaParbat.Controllers;
 
 namespace NangaParbat.Models
 {
-    [Collection("users")]
+    //[Collection("users")]
     [GenericCrud("/v1/users", "Users")]
     public class User : Document
     {

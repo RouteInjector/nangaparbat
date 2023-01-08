@@ -6,7 +6,7 @@ using NangaParbat.Models;
 
 namespace Demo.Models
 {
-    [Collection("books")]
+    //[Collection("books")]
     [GenericCrud("/v1/books", "Book")]
     public class Book : Document
     {
